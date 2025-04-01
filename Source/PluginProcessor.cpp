@@ -21,7 +21,19 @@ CW2DelayAudioProcessor::CW2DelayAudioProcessor()
                      #endif
                        )
 #endif
+, treeState(*this, nullptr, juce::Identifier("PARAMETERS"),
+    {
+     std::make_unique<juce::AudioParameterFloat>("delaytime", "DelayTime", 10.0f, 3000.0f, 500.0f),
+     std::make_unique<juce::AudioParameterFloat>("feedback", "Feedback", 0.0f, 0.99f, 0.5f),
+     std::make_unique<juce::AudioParameterFloat>("dryWet", "DryWet", 0.0f, 1.0f, 0.5f),
 {
+    const juce::StringArray params = { "cutoff", "resonance", "drive", "mode" };
+    for (int i = 0; i <= 3; ++i)
+    {
+    // adds a listener to each parameter in the array.
+    treeState.addParameterListener(params[i], this);
+    }
+
 }
 
 CW2DelayAudioProcessor::~CW2DelayAudioProcessor()
@@ -166,8 +178,8 @@ bool CW2DelayAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* CW2DelayAudioProcessor::createEditor()
 {
-    return new CW2DelayAudioProcessorEditor (*this);
-}
+    return new CW2DelayAudioProcessorEditor (*this, treeState);
+    }
 
 //==============================================================================
 void CW2DelayAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
@@ -188,4 +200,9 @@ void CW2DelayAudioProcessor::setStateInformation (const void* data, int sizeInBy
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new CW2DelayAudioProcessor();
+}
+// Function called when parameter is changed
+void CW2DelayAudioProcessor::parameterChanged(const juce::String& parameterID, float
+    newValue)
+{
 }

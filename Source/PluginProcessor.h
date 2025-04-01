@@ -13,7 +13,8 @@
 //==============================================================================
 /**
 */
-class CW2DelayAudioProcessor  : public juce::AudioProcessor
+class CW2DelayAudioProcessor  : public juce::AudioProcessor,
+    public juce::AudioProcessorValueTreeState::Listener //initialises tree listener
 {
 public:
     //==============================================================================
@@ -53,7 +54,12 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    void parameterChanged(const juce::String& parameterID, float newValue) override; //declares function 
+
 private:
+    juce::AudioProcessorVauleTreeState treeState; //initialisation of Parameter Tree
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CW2DelayAudioProcessor)
+    
 };
