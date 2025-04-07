@@ -33,6 +33,14 @@ CW2DelayAudioProcessor::CW2DelayAudioProcessor()
                // adds a listener to each parameter in the array.
                treeState.addParameterListener(params[i], this);
        }
+       {    // inputGain parameter. This is used in processBlock to scale the input signal
+           inputGain = new juce::AudioParameterFloat("inputGain", "Input Gain", 0.0f, 10.0f, 1.0f);
+           addParameter(inputGain);
+
+           //dry wet slider - used in processblock
+           dryWetMix = new juce::AudioParameterFloat("dryWetMix", "Dry / Wet Mix", 0.0f, 1.0f, 0.5f);
+           addParameter(dryWetMix);
+       }
 
 }
 CW2DelayAudioProcessor::~CW2DelayAudioProcessor()
@@ -114,6 +122,21 @@ void CW2DelayAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 
     CW2Delay.reset();
     CW2Delay.prepare(spec);
+
+    {
+        juce::dsp::ProcessSpec spec;
+        spec.sampleRate = sampleRate;
+        spec.maximumBlockSize = samplesPerBlock;
+        spec.numChannels = getTotalNumOutputChannels();
+
+        // Set max delay time to 3 seconds
+        int maxDelaySamples = static_cast<int>(sampleRate * 3.0); // 3 seconds max
+        delayBuffer.setSize(getTotalNumOutputChannels(), maxDelaySamples);
+        delayBuffer.clear();
+
+        writePosition = 0;
+    }
+
 }
 
 void CW2DelayAudioProcessor::releaseResources()
@@ -148,49 +171,51 @@ bool CW2DelayAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
-void CW2DelayAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void CW2DelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer&)
 {
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+    auto numInputChannels = getTotalNumInputChannels();
+    auto numSamples = buffer.getNumSamples();
+    auto delayBufferSize = delayBuffer.getNumSamples();
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    // Convert delay time from ms to samples
+    int delaySamples = static_cast<int>((mDelayLine / 1000.0f) * getSampleRate());
+
+    // Process channels seperately
+    for (int channel = 0; channel < numInputChannels; ++channel)
     {
-        auto* channelDataL = buffer.getWritePointer(0);
-        auto* channelDataR = buffer.getWritePointer(1);
+        auto* channelData = buffer.getWritePointer(channel);       // Pointer to current audio buffer (input/output)
+        auto* delayData = delayBuffer.getWritePointer(channel);    // Pointer to delay buffer
 
-        for (int i = 0; i < buffer.getNumSamples(); i++)
+        for (int i = 0; i < numSamples; ++i)
         {
-            float inL = channelDataL[i]; // 1
-            float inR = channelDataR[i]; // 1
-            float tempL = CW2Delay.popSample(0, mDelayLine); // 2
-            float tempR = CW2Delay.popSample(1, mDelayLine); // 2
-            CW2Delay.pushSample(0, inL + (tempL * mFeedback)); // 3
-            CW2Delay.pushSample(1, inR + (tempR * mFeedback)); // 3
-            channelDataL[i] = (inL + tempL) * 0.5f; // 4
-            channelDataR[i] = (inR + tempR) * 0.5f; // 4
+            // Calculate current position in delay buffer to write to
+            int bufferIndex = (writePosition + i) % delayBufferSize;
 
-            // Dry/Wet
-            channelDataL[i] = (channelDataL[i] * (1.0f - dryWetMix)) + (wetSignal * dryWetMix);
-            channelDataR[i] = (channelDataR[i] * (1.0f - dryWetMix)) + (wetSignal * dryWetMix);
+            // Calculate position to read from based on delay time (wrap around using modulo (%))
+            int readIndex = (bufferIndex - delaySamples + delayBufferSize) % delayBufferSize;
+
+            // Get the input sample
+            float in = channelData[i];
+
+            // Get the delayed sample from the delay buffer
+            float delayedSample = delayData[readIndex];
+
+            // Write the new sample into the delay buffer, including feedback from the delayed sample
+            delayData[bufferIndex] = in + delayedSample * mFeedback;
+
+            // Mix the dry input and wet signal
+            float wetSample = delayedSample;
+            channelData[i] = in * (1.0f - dryWet) + wetSample * dryWet;
         }
     }
+
+    // Move the write position forward by the number of samples just processed
+    writePosition = (writePosition + numSamples) % delayBufferSize;
 }
+
+
 
 //==============================================================================
 bool CW2DelayAudioProcessor::hasEditor() const
@@ -235,4 +260,12 @@ void CW2DelayAudioProcessor::parameterChanged(const juce::String& parameterID, f
     {
         mFeedback = newValue;
     }
-}
+    else if (parameterID == "inGain")
+    {
+        inGain = newValue;
+    }
+    else if (parameterID == "dryWet")
+    {
+        dryWet = newValue;
+    }
+}  

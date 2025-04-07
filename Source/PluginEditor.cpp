@@ -32,7 +32,7 @@ CW2DelayAudioProcessorEditor::CW2DelayAudioProcessorEditor(CW2DelayAudioProcesso
     // dryWet
     dryWetValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(treeState, "dryWet", dryWetDial);
     dryWetDial.setSliderStyle(juce::Slider::LinearHorizontal);
-    dryWetDial.setRange(1.0f, 25.0f, 1.0f);
+    dryWetDial.setRange(0.0f, 1.0f, 0.1f);
     dryWetDial.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     addAndMakeVisible(&dryWetDial);
 }

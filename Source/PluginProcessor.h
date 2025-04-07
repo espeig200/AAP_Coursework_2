@@ -15,6 +15,8 @@
 */
 class CW2DelayAudioProcessor  : public juce::AudioProcessor,
     public juce::AudioProcessorValueTreeState::Listener //initialises tree listener
+
+
 {
 public:
     //==============================================================================
@@ -24,6 +26,9 @@ public:
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
+
+    juce::AudioBuffer<float> delayBuffer; // declare Delay buffer
+    int writePosition = 0; // declare write Position
 
    #ifndef JucePlugin_PreferredChannelConfigurations
     bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
@@ -62,6 +67,15 @@ private:
 
     float mDelayLine = 1000.0f;
     float mFeedback = 0.3f;
+    float inGain;
+    float dryWet;
+
+    // Dry/Wet Simple
+    // set up float pointer for Input gain
+    juce::AudioParameterFloat* inputGain;
+
+    // dry wet mix control
+    juce::AudioParameterFloat* dryWetMix;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CW2DelayAudioProcessor)
