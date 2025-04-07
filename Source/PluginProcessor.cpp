@@ -171,17 +171,24 @@ void CW2DelayAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     // interleaved by keeping the same state.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
+        auto* channelDataL = buffer.getWritePointer(0);
+        auto* channelDataR = buffer.getWritePointer(1);
 
         for (int i = 0; i < buffer.getNumSamples(); i++)
         {
-            float in = channelData[i]; // 1
-            float temp = CW2Delay.popSample(channel, mDelayLine); // 2
-            CW2Delay.pushSample(channel, in + (temp * mFeedback)); // 3
-            channelData[i] = (in + temp) * 0.5f; // 4
+            float inL = channelDataL[i]; // 1
+            float inR = channelDataR[i]; // 1
+            float tempL = CW2Delay.popSample(0, mDelayLine); // 2
+            float tempR = CW2Delay.popSample(1, mDelayLine); // 2
+            CW2Delay.pushSample(0, inL + (tempL * mFeedback)); // 3
+            CW2Delay.pushSample(1, inR + (tempR * mFeedback)); // 3
+            channelDataL[i] = (inL + tempL) * 0.5f; // 4
+            channelDataR[i] = (inR + tempR) * 0.5f; // 4
+
+            // Dry/Wet
+            channelDataL[i] = (channelDataL[i] * (1.0f - dryWetMix)) + (wetSignal * dryWetMix);
+            channelDataR[i] = (channelDataR[i] * (1.0f - dryWetMix)) + (wetSignal * dryWetMix);
         }
-
-
     }
 }
 

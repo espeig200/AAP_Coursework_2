@@ -54,14 +54,14 @@ void CW2DelayAudioProcessorEditor::paint (juce::Graphics& g)
     g.setFont(20);
     g.drawFittedText("D", 55, 85, 10, 10, juce::Justification::centred, 1, 0.0f);
     g.drawFittedText("F", 165, 85, 10, 10, juce::Justification::centred, 1, 0.0f);
-    g.drawFittedText("D/W", 110, 175, 12, 12, juce::Justification::centred, 1, 0.0f);
+    g.drawFittedText("D/W", 55, 85, 12, 12, juce::Justification::centred, 1, 0.0f);
 }
 
 void CW2DelayAudioProcessorEditor::resized()
 {
     delayTimeDial.setBounds(10, 40, 100, 100);
     feedbackDial.setBounds(120, 40, 100, 100);
-    dryWetDial.setBounds(10, 130, 100, 100);
+    dryWetDial.setBounds(65, 130, 100, 100);
     
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
