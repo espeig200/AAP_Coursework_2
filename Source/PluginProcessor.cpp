@@ -12,30 +12,29 @@
 //==============================================================================
 CW2DelayAudioProcessor::CW2DelayAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+    : AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+        .withInput("Input", juce::AudioChannelSet::stereo(), true)
 #endif
-, treeState(*this, nullptr, juce::Identifier("PARAMETERS"),
-    {
-     std::make_unique<juce::AudioParameterFloat>("delaytime", "DelayTime", 10.0f, 3000.0f, 500.0f),
-     std::make_unique<juce::AudioParameterFloat>("feedback", "Feedback", 0.0f, 0.99f, 0.5f),
-     std::make_unique<juce::AudioParameterFloat>("dryWet", "DryWet", 0.0f, 1.0f, 0.5f),
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+    )
+#endif
+    , treeState(*this, nullptr, juce::Identifier("PARAMETERS"),
+        { std::make_unique<juce::AudioParameterFloat>("delayTime", "delayTime", 10.0f, 3000.0f, 500.0f),
+        std::make_unique<juce::AudioParameterFloat>("feedback", "feedback", 0.0f, 0.99f, 0.5f),
+        std::make_unique<juce::AudioParameterFloat>("dryWet", "dryWet", 0.0f, 1.0f, 0.5f)})
 {
-    const juce::StringArray params = { "cutoff", "resonance", "drive", "mode" };
-    for (int i = 0; i <= 3; ++i)
-    {
-    // adds a listener to each parameter in the array.
-    treeState.addParameterListener(params[i], this);
-    }
+       const juce::StringArray params = { "delayTime", "feedback", "dryWet",};
+
+       for (int i = 0; i <= 3; ++i)
+       {
+               // adds a listener to each parameter in the array.
+               treeState.addParameterListener(params[i], this);
+       }
 
 }
-
 CW2DelayAudioProcessor::~CW2DelayAudioProcessor()
 {
 }
@@ -107,6 +106,14 @@ void CW2DelayAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = getTotalNumOutputChannels();
+
+    CW2Delay.reset();
+    CW2Delay.prepare(spec);
 }
 
 void CW2DelayAudioProcessor::releaseResources()
@@ -166,7 +173,15 @@ void CW2DelayAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     {
         auto* channelData = buffer.getWritePointer (channel);
 
-        // ..do something to the data...
+        for (int i = 0; i < buffer.getNumSamples(); i++)
+        {
+            float in = channelData[i]; // 1
+            float temp = CW2Delay.popSample(channel, mDelayLine); // 2
+            CW2Delay.pushSample(channel, in + (temp * mFeedback)); // 3
+            channelData[i] = (in + temp) * 0.5f; // 4
+        }
+
+
     }
 }
 
@@ -205,4 +220,12 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 void CW2DelayAudioProcessor::parameterChanged(const juce::String& parameterID, float
     newValue)
 {
+    if (parameterID == "delayTime")
+    {
+        mDelayLine = newValue;
+    }
+    else if (parameterID == "feedback")
+    {
+        mFeedback = newValue;
+    }
 }

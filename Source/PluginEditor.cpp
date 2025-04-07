@@ -18,23 +18,20 @@ CW2DelayAudioProcessorEditor::CW2DelayAudioProcessorEditor(CW2DelayAudioProcesso
     // editor's size to whatever you need it to be.
     setSize(230, 230);
     // delayTime
-    delayTimeValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>
-        (treeState, "delayTime", delayTimeDial);
+    delayTimeValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (treeState, "delaytime", delayTimeDial);
     delayTimeDial.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     delayTimeDial.setRange(10.0f, 3000.0f, 500.0f);
     delayTimeDial.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     addAndMakeVisible(&delayTimeDial);
     // Feedback
-    feedbackValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(treeState, "Feedback",
-        feedbackDial);
+    feedbackValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(treeState, "feedback", feedbackDial);
     feedbackDial.setSliderStyle(juce::Slider::RotaryVerticalDrag);
     feedbackDial.setRange(0.0f, 1.10f, 0.0f);
     feedbackDial.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     addAndMakeVisible(&feedbackDial);
     // dryWet
-    dryWetValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(treeState, "Dry/Wet",
-        dryWetDial);
-    dryWetDial.setSliderStyle(juce::Slider::RotaryVerticalDrag);
+    dryWetValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(treeState, "dryWet", dryWetDial);
+    dryWetDial.setSliderStyle(juce::Slider::LinearHorizontal);
     dryWetDial.setRange(1.0f, 25.0f, 1.0f);
     dryWetDial.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     addAndMakeVisible(&dryWetDial);
@@ -48,17 +45,16 @@ CW2DelayAudioProcessorEditor::~CW2DelayAudioProcessorEditor()
 void CW2DelayAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-    g.fillAll(juce::Colours::aqua);
+    g.fillAll(juce::Colours::purple);
     g.setColour(juce::Colours::black);
     // Title Text
     g.setFont(30);
-    g.drawFittedText("Ladder Filter", 10, 20, 210, 10, juce::Justification::centred, 1, 0.0f);
-    // Frequnecy, Resonance & Drive labels
+    g.drawFittedText("Ping-Pong To Be", 10, 20, 210, 10, juce::Justification::centred, 1, 0.0f);
+    // Delay, Feedback, and Dry/Wet labels
     g.setFont(20);
-    g.drawFittedText("dT", 55, 85, 10, 10, juce::Justification::centred, 1, 0.0f);
+    g.drawFittedText("D", 55, 85, 10, 10, juce::Justification::centred, 1, 0.0f);
     g.drawFittedText("F", 165, 85, 10, 10, juce::Justification::centred, 1, 0.0f);
-    g.drawFittedText("D/W", 55, 175, 12, 12, juce::Justification::centred, 1, 0.0f);
-
+    g.drawFittedText("D/W", 110, 175, 12, 12, juce::Justification::centred, 1, 0.0f);
 }
 
 void CW2DelayAudioProcessorEditor::resized()

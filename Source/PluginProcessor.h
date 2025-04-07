@@ -57,7 +57,11 @@ public:
     void parameterChanged(const juce::String& parameterID, float newValue) override; //declares function 
 
 private:
-    juce::AudioProcessorVauleTreeState treeState; //initialisation of Parameter Tree
+    juce::AudioProcessorValueTreeState treeState; //initialisation of Parameter Tree
+    juce::dsp::DelayLine<float> CW2Delay{ 22050 };
+
+    float mDelayLine = 1000.0f;
+    float mFeedback = 0.3f;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CW2DelayAudioProcessor)
