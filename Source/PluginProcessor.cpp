@@ -130,7 +130,7 @@ void CW2DelayAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
         spec.numChannels = getTotalNumOutputChannels();
 
         // Set max delay time to 3 seconds
-        int maxDelaySamples = static_cast<int>(sampleRate * 3.0); // 3 seconds max
+        int maxDelaySamples = static_cast<int>(sampleRate * 3.0);
         delayBuffer.setSize(getTotalNumOutputChannels(), maxDelaySamples);
         delayBuffer.clear();
 
