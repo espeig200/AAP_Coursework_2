@@ -175,7 +175,6 @@ void CW2DelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
 {
     juce::ScopedNoDenormals noDenormals;
 
-    auto numInputChannels = getTotalNumInputChannels();
     auto numSamples = buffer.getNumSamples();
     auto delayBufferSize = delayBuffer.getNumSamples();
 
@@ -183,10 +182,14 @@ void CW2DelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     int delaySamples = static_cast<int>((mDelayLine / 1000.0f) * getSampleRate());
 
     // Process channels seperately
-    for (int channel = 0; channel < numInputChannels; ++channel)
+    if (getTotalNumInputChannels() < 2)
+        return;
     {
-        auto* channelData = buffer.getWritePointer(channel);       // Pointer to current audio buffer (input/output)
-        auto* delayData = delayBuffer.getWritePointer(channel);    // Pointer to delay buffer
+        auto* channelDataL = buffer.getWritePointer(0);       // Pointer to current audio buffer (input/output)
+        auto* channelDataR = buffer.getWritePointer(1);
+        
+        auto* delayDataL = delayBuffer.getWritePointer(0);    // Pointer to delay buffer
+        auto* delayDataR = delayBuffer.getWritePointer(1);
 
         for (int i = 0; i < numSamples; ++i)
         {
@@ -196,18 +199,27 @@ void CW2DelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
             // Calculate position to read from based on delay time (wrap around using modulo (%))
             int readIndex = (bufferIndex - delaySamples + delayBufferSize) % delayBufferSize;
 
-            // Get the input sample
-            float in = channelData[i];
+            // feed L for bounce
+            float inputSample = channelDataL[i];
 
             // Get the delayed sample from the delay buffer
-            float delayedSample = delayData[readIndex];
+            float delayedSampleL = delayDataL[readIndex];
+            float delayedSampleR = delayDataR[readIndex];
 
-            // Write the new sample into the delay buffer, including feedback from the delayed sample
-            delayData[bufferIndex] = in + delayedSample * mFeedback;
+            // Get the input sample
+            float inL = channelDataL[i];
+            float inR = channelDataR[i];
 
-            // Mix the dry input and wet signal
-            float wetSample = delayedSample;
-            channelData[i] = in * (1.0f - dryWet) + wetSample * dryWet;
+            // Write delay buffer, including feedback
+            delayDataL[bufferIndex] = inputSample + delayedSampleR * mFeedback;
+            delayDataR[bufferIndex] = delayedSampleL * mFeedback;
+
+            // Ping Pong Logic
+            float wetL = delayedSampleL;
+            float wetR = delayedSampleR;
+
+            channelDataL[i] = inL * (1.0f - dryWet) + wetL * dryWet;
+            channelDataR[i] = inR * (1.0f - dryWet) + wetR * dryWet;
         }
     }
 
