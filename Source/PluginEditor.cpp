@@ -17,7 +17,7 @@ CW2DelayAudioProcessorEditor::CW2DelayAudioProcessorEditor(CW2DelayAudioProcesso
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize(450, 300);
+    setSize(300, 300);
     // delayTime
     delayTimeValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (treeState, "delaytime", delayTimeDial);
     delayTimeDial.setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -62,9 +62,9 @@ void CW2DelayAudioProcessorEditor::paint (juce::Graphics& g)
     g.drawFittedText("The PingPongalong MK1", 10, 20, 210, 10, juce::Justification::centred, 1, 0.0f);
     // Delay, Feedback, and Dry/Wet labels
     g.setFont(20);
-    g.drawFittedText("Dt", 55, 85, 10, 10, juce::Justification::centred, 1, 0.0f);
-    g.drawFittedText("F", 165, 85, 10, 10, juce::Justification::centred, 1, 0.0f);
-    g.drawFittedText("D/W", 55, 85, 10, 10, juce::Justification::centred, 1, 0.0f);
+    g.drawFittedText("Dt", 55, 125, 10, 10, juce::Justification::centred, 1, 0.0f);
+    g.drawFittedText("F", 165, 125, 10, 10, juce::Justification::centred, 1, 0.0f);
+    g.drawFittedText("Dry/Wet", 130, 170, 10, 10, juce::Justification::centred, 1, 0.0f);
 }
 
 void CW2DelayAudioProcessorEditor::resized()
