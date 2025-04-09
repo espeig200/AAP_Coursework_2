@@ -168,6 +168,36 @@ void CW2DelayAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     // Convert delay time from ms to samples
     int delaySamples = static_cast<int>((mDelayLine / 1000.0f) * getSampleRate());
 
+    // BPM sync Logic
+    bool tempoSync = treeState.getRawParameterValue("syncToTempo")->load();
+    int divisionIndex = static_cast<int>(treeState.getRawParameterValue("noteDivision")->load());
+
+    if (auto* playhead = getPlayHead())
+    {
+        juce::AudioPlayHead::CurrentPositionInfo info;
+        if (playhead->getCurrentPosition(info) && info.bpm > 0)
+        {
+            currentBPM = info.bpm;
+        }
+    }
+
+    if (tempoSync)
+    {
+        float beatLengthMs = 60000.0f / currentBPM;
+        float delayMs = beatLengthMs; // Default: 1/4
+
+        switch (divisionIndex)
+        {
+        case 0: delayMs = beatLengthMs; break;             // 1/4
+        case 1: delayMs = beatLengthMs / 2.0f; break;       // 1/8
+        case 2: delayMs = beatLengthMs / 3.0f; break;       // 1/8T
+        case 3: delayMs = beatLengthMs / 4.0f; break;       // 1/16
+        case 4: delayMs = beatLengthMs / 6.0f; break;       // 1/16T
+        }
+
+        mDelayLine = delayMs; // override regular delay time
+    }
+
     // Process channels seperately
     if (getTotalNumInputChannels() < 2)
         return;
@@ -293,6 +323,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout CW2DelayAudioProcessor::crea
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "lpfCutoff", "LPF Cutoff", juce::NormalisableRange<float>(100.0f, 10000.0f, 1.0f, 0.5f), 5000.0f));
+
+    // BPM sync
+    params.push_back(std::make_unique<juce::AudioParameterBool>("syncToTempo", "Sync to Tempo", false));
+    params.push_back(std::make_unique<juce::AudioParameterChoice>("noteDivision", "Note Division",
+        juce::StringArray{ "1/4", "1/8", "1/8T", "1/16", "1/16T" }, 1)); // default = 1/8
+
 
     return { params.begin(), params.end() };
 }

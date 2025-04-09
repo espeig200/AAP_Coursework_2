@@ -37,6 +37,13 @@ private:
     std::unique_ptr <juce::AudioProcessorValueTreeState::SliderAttachment> delayTimeValue;
     std::unique_ptr <juce::AudioProcessorValueTreeState::SliderAttachment> feedbackValue;
     std::unique_ptr <juce::AudioProcessorValueTreeState::SliderAttachment> dryWetValue;
+    
+    //BPM sync UI
+    juce::ToggleButton syncToTempoButton;
+    juce::ComboBox divisionBox;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> syncToTempoAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> divisionAttachment;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CW2DelayAudioProcessorEditor)

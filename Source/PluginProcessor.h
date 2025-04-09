@@ -71,6 +71,7 @@ private:
     float mFeedback = 0.3f;
     float inGain;
     float dryWet;
+    float currentBPM = 120.0f;
 
     // Dry/Wet Simple
     // set up float pointer for Input gain

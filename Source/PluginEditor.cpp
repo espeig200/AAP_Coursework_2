@@ -14,9 +14,10 @@ CW2DelayAudioProcessorEditor::CW2DelayAudioProcessorEditor(CW2DelayAudioProcesso
     : AudioProcessorEditor(&p), audioProcessor(p), treeState(vts)
 
 {
+
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize(230, 230);
+    setSize(450, 600);
     // delayTime
     delayTimeValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (treeState, "delaytime", delayTimeDial);
     delayTimeDial.setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -35,6 +36,15 @@ CW2DelayAudioProcessorEditor::CW2DelayAudioProcessorEditor(CW2DelayAudioProcesso
     dryWetDial.setRange(0.0f, 1.0f, 0.1f);
     dryWetDial.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     addAndMakeVisible(&dryWetDial);
+
+    syncToTempoButton.setButtonText("Sync to Tempo");
+    addAndMakeVisible(syncToTempoButton);
+    syncToTempoAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(treeState, "syncToTempo", syncToTempoButton);
+
+    divisionBox.addItemList({ "1/4", "1/8", "1/8T", "1/16", "1/16T" }, 1);
+    addAndMakeVisible(divisionBox);
+    divisionAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(treeState, "noteDivision", divisionBox);
+
 }
 
 CW2DelayAudioProcessorEditor::~CW2DelayAudioProcessorEditor()
@@ -62,7 +72,9 @@ void CW2DelayAudioProcessorEditor::resized()
     delayTimeDial.setBounds(10, 40, 100, 100);
     feedbackDial.setBounds(120, 40, 100, 100);
     dryWetDial.setBounds(65, 130, 100, 100);
-    
+    syncToTempoButton.setBounds(10, 180, 150, 25);
+    divisionBox.setBounds(170, 180, 100, 25);
+
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 }
