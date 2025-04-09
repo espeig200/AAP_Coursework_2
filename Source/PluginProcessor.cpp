@@ -21,28 +21,15 @@ CW2DelayAudioProcessor::CW2DelayAudioProcessor()
 #endif
     )
 #endif
-    , treeState(*this, nullptr, juce::Identifier("PARAMETERS"),
-        { std::make_unique<juce::AudioParameterFloat>("delayTime", "delayTime", 10.0f, 3000.0f, 500.0f),
-        std::make_unique<juce::AudioParameterFloat>("feedback", "feedback", 0.0f, 0.99f, 0.5f),
-        std::make_unique<juce::AudioParameterFloat>("dryWet", "dryWet", 0.0f, 1.0f, 0.5f)})
+    , treeState(*this, nullptr, juce::Identifier("PARAMETERS"), createParameterLayout())
 {
-       const juce::StringArray params = { "delayTime", "feedback", "dryWet",};
 
-       for (int i = 0; i <= 3; ++i)
-       {
-               // adds a listener to each parameter in the array.
-               treeState.addParameterListener(params[i], this);
-       }
-       {    // inputGain parameter. This is used in processBlock to scale the input signal
-           inputGain = new juce::AudioParameterFloat("inputGain", "Input Gain", 0.0f, 10.0f, 1.0f);
-           addParameter(inputGain);
+    const juce::StringArray params = { "delayTime", "feedback", "dryWet",};
 
-           //dry wet slider - used in processblock
-           dryWetMix = new juce::AudioParameterFloat("dryWetMix", "Dry / Wet Mix", 0.0f, 1.0f, 0.5f);
-           addParameter(dryWetMix);
+    for (int i = 0; i < params.size(); ++i)
+        treeState.addParameterListener(params[i], this);
        }
 
-}
 CW2DelayAudioProcessor::~CW2DelayAudioProcessor()
 {
 }
@@ -281,3 +268,32 @@ void CW2DelayAudioProcessor::parameterChanged(const juce::String& parameterID, f
         dryWet = newValue;
     }
 }  
+
+juce::AudioProcessorValueTreeState::ParameterLayout CW2DelayAudioProcessor::createParameterLayout()
+{
+    std::vector<std::unique_ptr<juce::RangedAudioParameter>> params;
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "delayTime", "Delay Time", juce::NormalisableRange<float>(10.0f, 3000.0f, 1.0f), 500.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "feedback", "Feedback", juce::NormalisableRange<float>(0.0f, 0.99f, 0.01f), 0.5f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "dryWet", "Dry/Wet", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.5f));
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(
+        "pingPong", "Ping Pong", false));
+
+    params.push_back(std::make_unique<juce::AudioParameterBool>(
+        "syncToTempo", "Sync to Tempo", false));
+
+    params.push_back(std::make_unique<juce::AudioParameterChoice>(
+        "noteDivision", "Note Division", juce::StringArray{ "1/4", "1/8", "1/8T", "1/16", "1/16T" }, 1));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "lpfCutoff", "LPF Cutoff", juce::NormalisableRange<float>(100.0f, 10000.0f, 1.0f, 0.5f), 5000.0f));
+
+    return { params.begin(), params.end() };
+}
+

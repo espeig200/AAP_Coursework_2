@@ -23,6 +23,8 @@ public:
     CW2DelayAudioProcessor();
     ~CW2DelayAudioProcessor() override;
 
+    static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
