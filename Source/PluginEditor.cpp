@@ -17,7 +17,7 @@ CW2DelayAudioProcessorEditor::CW2DelayAudioProcessorEditor(CW2DelayAudioProcesso
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    setSize(450, 600);
+    setSize(450, 300);
     // delayTime
     delayTimeValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (treeState, "delaytime", delayTimeDial);
     delayTimeDial.setSliderStyle(juce::Slider::RotaryVerticalDrag);
@@ -59,12 +59,12 @@ void CW2DelayAudioProcessorEditor::paint (juce::Graphics& g)
     g.setColour(juce::Colours::black);
     // Title Text
     g.setFont(30);
-    g.drawFittedText("Ping-Pong To Be", 10, 20, 210, 10, juce::Justification::centred, 1, 0.0f);
+    g.drawFittedText("The PingPongalong MK1", 10, 20, 210, 10, juce::Justification::centred, 1, 0.0f);
     // Delay, Feedback, and Dry/Wet labels
     g.setFont(20);
-    g.drawFittedText("D", 55, 85, 10, 10, juce::Justification::centred, 1, 0.0f);
+    g.drawFittedText("Dt", 55, 85, 10, 10, juce::Justification::centred, 1, 0.0f);
     g.drawFittedText("F", 165, 85, 10, 10, juce::Justification::centred, 1, 0.0f);
-    g.drawFittedText("D/W", 55, 85, 12, 12, juce::Justification::centred, 1, 0.0f);
+    g.drawFittedText("D/W", 55, 85, 10, 10, juce::Justification::centred, 1, 0.0f);
 }
 
 void CW2DelayAudioProcessorEditor::resized()
@@ -72,8 +72,8 @@ void CW2DelayAudioProcessorEditor::resized()
     delayTimeDial.setBounds(10, 40, 100, 100);
     feedbackDial.setBounds(120, 40, 100, 100);
     dryWetDial.setBounds(65, 130, 100, 100);
-    syncToTempoButton.setBounds(10, 180, 150, 25);
-    divisionBox.setBounds(170, 180, 100, 25);
+    syncToTempoButton.setBounds(10, 220, 150, 25);
+    divisionBox.setBounds(170, 220, 100, 25);
 
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
