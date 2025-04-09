@@ -56,15 +56,15 @@ void CW2DelayAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(juce::Colours::purple);
-    g.setColour(juce::Colours::black);
+    g.setColour(juce::Colours::silver);
     // Title Text
     g.setFont(30);
     g.drawFittedText("The PingPongalong MK1", 10, 20, 210, 10, juce::Justification::centred, 1, 0.0f);
     // Delay, Feedback, and Dry/Wet labels
     g.setFont(20);
-    g.drawFittedText("Dt", 55, 125, 10, 10, juce::Justification::centred, 1, 0.0f);
-    g.drawFittedText("F", 165, 125, 10, 10, juce::Justification::centred, 1, 0.0f);
-    g.drawFittedText("Dry/Wet", 130, 170, 10, 10, juce::Justification::centred, 1, 0.0f);
+    g.drawFittedText("Dt", 55, 125, 7, 7, juce::Justification::centred, 1, 0.0f);
+    g.drawFittedText("F", 165, 125, 7, 7, juce::Justification::centred, 1, 0.0f);
+    g.drawFittedText("Dry/Wet", 130, 170, 7, 7, juce::Justification::centred, 1, 0.0f);
 }
 
 void CW2DelayAudioProcessorEditor::resized()
