@@ -19,6 +19,7 @@ class CW2DelayAudioProcessorEditor  : public juce::AudioProcessorEditor
 public:
     CW2DelayAudioProcessorEditor (CW2DelayAudioProcessor&, juce::AudioProcessorValueTreeState&);
     ~CW2DelayAudioProcessorEditor() override;
+    
 
     //==============================================================================
     void paint (juce::Graphics&) override;
@@ -44,7 +45,6 @@ private:
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> syncToTempoAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> divisionAttachment;
-
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (CW2DelayAudioProcessorEditor)
 };
