@@ -26,7 +26,7 @@ CW2DelayAudioProcessorEditor::CW2DelayAudioProcessorEditor(CW2DelayAudioProcesso
     // Feedback
     feedbackValue = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(treeState, "feedback", feedbackDial);
     feedbackDial.setSliderStyle(juce::Slider::RotaryVerticalDrag);
-    feedbackDial.setRange(0.0f, 1.10f, 0.0f);
+    feedbackDial.setRange(0.0f, 1.0f, 0.0f);
     feedbackDial.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
     addAndMakeVisible(&feedbackDial);
     // dryWet
